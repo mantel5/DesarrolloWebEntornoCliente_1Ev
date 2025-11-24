@@ -1,29 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pass Saver</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <main>
-    <ul></ul>
-  </main>
-  <script>
-    let drawData = (data) => {
-      data.forEach(category => {
-        let parent = document.getElementsByTagName('ul')[0]
-        let child = document.createElement('li')
-        // child.innerText = JSON.stringify(category)
-        child.innerText = category.name
-        parent.appendChild(child)
-      })
-    }
+    <div class="container">
+        <header>
+          <header>
+            <h1>Pass saver</h1>
+            
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Search categories or sites..." style="padding: 8px; width: 250px; border-radius: 5px; border: 1px solid #ccc;">
+            </div>
+        
+            <div class="actions">
+                <button id="btnAddCategory" class="btn">Add category</button>
+                <a href="detalle.html" class="btn btn-primary">Add site</a>
+            </div>
+        </header>
+        </header>
 
-    fetch("http://localhost:3000/categories")
-      .then(res => res.json())
-      .then(data => drawData(data))
-  </script>
+        <main class="main-layout">
+            <aside class="sidebar">
+                <h3>Categories</h3>
+                <ul id="categoryList">
+                    <li>Cargando...</li>
+                </ul>
+            </aside>
+
+            <section class="content">
+                <table class="site-table">
+                    <thead>
+                        <tr>
+                            <th>Site</th>
+                            <th>User</th>
+                            <th>Password</th>
+                            <th>Created at</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="siteTableBody">
+                        <tr><td colspan="4">Selecciona una categoría...</td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <script type="module" src="js/index.js"></script>
 </body>
 </html>

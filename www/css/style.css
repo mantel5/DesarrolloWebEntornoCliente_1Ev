@@ -1,0 +1,233 @@
+/* --- CONFIGURACIÓN GENERAL --- */
+:root {
+    --primary-color: #3498db;  /* Azul */
+    --danger-color: #e74c3c;   /* Rojo */
+    --success-color: #2ecc71;  /* Verde */
+    --text-dark: #2c3e50;
+    --text-light: #7f8c8d;
+    --bg-color: #f4f6f9;
+    --white: #ffffff;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    margin: 0;
+    padding: 20px;
+    color: var(--text-dark);
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: var(--white);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+/* --- CABECERA (Header) --- */
+header {
+    display: flex;
+    justify-content: space-between; /* Separa título, buscador y botones */
+    align-items: center;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 25px;
+    margin-bottom: 30px;
+    gap: 20px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: var(--text-dark);
+    flex-shrink: 0; /* Evita que el título se aplaste */
+}
+
+/* Buscador */
+.search-box {
+    flex-grow: 1; /* Ocupa el espacio central */
+    display: flex;
+    justify-content: center;
+}
+
+.search-box input {
+    width: 100%;
+    max-width: 400px; /* Ancho máximo elegante */
+    padding: 10px 20px;
+    border-radius: 50px; /* Bordes redondos modernos */
+    border: 1px solid #ddd;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: #fafafa;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+}
+
+/* Botones Principales */
+.actions {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* --- ESTRUCTURA PRINCIPAL (2 Columnas) --- */
+.main-layout {
+    display: flex;
+    gap: 40px;
+    min-height: 600px; /* Altura mínima para que no quede corto */
+}
+
+/* --- COLUMNA IZQUIERDA: CATEGORÍAS --- */
+.sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    border-right: 1px solid #f0f0f0;
+    padding-right: 20px;
+}
+
+.sidebar h3 {
+    margin-top: 0;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.category-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Elemento individual de categoría */
+.category-item {
+    display: flex;               /* Magia: Pone texto y botón en línea */
+    justify-content: space-between; /* Texto a la izq, botón a la dcha */
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+    color: #555;
+    font-weight: 500;
+}
+
+.category-item:hover {
+    background-color: #f8f9fa;
+    color: var(--primary-color);
+}
+
+.category-item.active {
+    background-color: #e3f2fd;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+/* Botón de borrar categoría (más sutil) */
+.category-item button {
+    opacity: 0.4; /* Medio transparente por defecto */
+    transition: opacity 0.2s;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 4px;
+}
+
+.category-item:hover button {
+    opacity: 1; /* Se ve bien al pasar el ratón */
+}
+
+.category-item button:hover {
+    background-color: #ffebeb; /* Fondo rojito al querer borrar */
+    border-radius: 4px;
+}
+
+/* --- COLUMNA DERECHA: TABLA --- */
+.content {
+    flex-grow: 1;
+    overflow-x: auto;
+}
+
+.site-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.site-table th {
+    background-color: #f8f9fa;
+    color: var(--text-light);
+    font-weight: 600;
+    padding: 15px;
+    text-align: left;
+    border-bottom: 2px solid #e9ecef;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.site-table td {
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+    color: var(--text-dark);
+}
+
+.site-table tr:hover td {
+    background-color: #fafafa; /* Efecto hover en fila */
+}
+
+/* --- BOTONES COMUNES --- */
+.btn {
+    padding: 10px 18px;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s, box-shadow 0.2s;
+}
+
+.btn:active { transform: scale(0.98); }
+
+.btn-primary { background-color: var(--primary-color); color: white; }
+.btn-primary:hover { background-color: #2980b9; }
+
+#btnAddCategory { background-color: var(--success-color); color: white; }
+#btnAddCategory:hover { background-color: #27ae60; }
+
+.btn-danger { background-color: var(--danger-color); color: white; }
+.btn-danger:hover { background-color: #c0392b; }
+
+.btn-secondary { background-color: #ecf0f1; color: #7f8c8d; }
+.btn-secondary:hover { background-color: #bdc3c7; color: #2c3e50; }
+
+.btn-sm {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    border-radius: 4px;
+}
+
+/* --- FORMULARIO (Detalle) --- */
+form { max-width: 500px; margin: 0 auto; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-dark); }
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;
+    font-size: 1rem; box-sizing: border-box; transition: border-color 0.3s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
