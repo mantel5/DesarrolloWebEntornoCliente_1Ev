@@ -6,35 +6,38 @@ const categorySelect = document.getElementById('categorySelect');
 const btnGenerate = document.getElementById('btnGenerate');
 const passwordInput = document.getElementById('password');
 
-// --- 1. AL CARGAR LA PÁGINA: Rellenar el desplegable de categorías ---
+// --- 1. AL CARGAR LA PÁGINA ---
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // Pedimos las categorías al servidor
         const categories = await api.getCategories();
         
-        // Limpiamos el select y ponemos la opción por defecto
+        // Rellenamos el desplegable
         categorySelect.innerHTML = '<option value="">Select a category...</option>';
-        
-        // Creamos una opción <option> por cada categoría
         categories.forEach(cat => {
             const option = document.createElement('option');
-            option.value = cat.id; // El valor que se enviará es el ID (número)
-            option.textContent = cat.name; // Lo que ve el usuario es el Nombre
+            option.value = cat.id;
+            option.textContent = cat.name;
             categorySelect.appendChild(option);
         });
+        
+        // Activamos las validaciones visuales (rojo/verde)
+        activarValidaciones();
 
     } catch (error) {
         console.error("Error cargando categorías:", error);
-        alert("Error: No se pueden cargar las categorías. Asegúrate de que npm start (puerto 3000) funciona.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de conexión',
+            text: 'No se pudieron cargar las categorías. Revisa npm start.'
+        });
     }
 });
 
-// --- 2. FUNCIONALIDAD EXTRA: GENERAR CONTRASEÑA SEGURA 🎲 ---
-// Cumple con el requisito del PDF: "8 caracteres, no sólo alfanuméricos..."
+// --- 2. GENERAR CONTRASEÑA SEGURA 🎲 ---
 if (btnGenerate) {
     btnGenerate.addEventListener('click', () => {
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
-        const passwordLength = 12; // Ponemos 12 para que sea más segura
+        const passwordLength = 12; 
         let password = "";
 
         for (let i = 0; i < passwordLength; i++) {
@@ -42,33 +45,43 @@ if (btnGenerate) {
             password += chars.charAt(randomIndex);
         }
 
-        // Escribimos la contraseña en el input
         passwordInput.value = password;
+        
+        // CORRECCIÓN: Forzamos el color verde al generar (para quitar el rojo si lo hubiera)
+        passwordInput.style.borderColor = "#2ecc71"; 
+        passwordInput.style.backgroundColor = "#ffffff";
 
-        // Efecto visual: parpadeo verde para saber que ha funcionado
+        // Efecto visual de parpadeo verde clarito
+        const originalBg = passwordInput.style.backgroundColor;
         passwordInput.style.transition = "background-color 0.3s";
         passwordInput.style.backgroundColor = "#d4edda";
-        setTimeout(() => passwordInput.style.backgroundColor = "", 500);
+        setTimeout(() => passwordInput.style.backgroundColor = originalBg, 500);
+
+        // Notificación pequeña (Toast)
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 1500
+        });
+        Toast.fire({ icon: 'success', title: 'Pass generada' });
     });
 }
 
-// --- 3. AL ENVIAR EL FORMULARIO (SAVE) ---
+// --- 3. GUARDAR SITIO (SAVE) ---
 if (form) {
     form.addEventListener('submit', async (e) => {
-        e.preventDefault(); // Evitamos que la página se recargue sola
+        e.preventDefault(); 
 
-        // Validamos que haya categoría seleccionada
         const categoryId = categorySelect.value;
         if (!categoryId) {
-            alert("⚠️ Please select a category");
+            Swal.fire('Falta información', 'Por favor, selecciona una categoría.', 'warning');
             return;
         }
 
-        // Recogemos los datos de los inputs
         const urlValue = document.getElementById('url').value;
-        
         const siteData = {
-            name: urlValue, // Usamos la URL como nombre del sitio (ya que el diseño no tiene campo 'Nombre' separado)
+            name: urlValue, // Usamos la URL como nombre
             url: urlValue,
             user: document.getElementById('user').value,
             password: passwordInput.value,
@@ -76,28 +89,33 @@ if (form) {
         };
 
         try {
-            // Llamamos a la API para guardar
-            console.log("Enviando datos...", siteData);
             await api.addSite(categoryId, siteData);
 
-            // Si todo va bien, volvemos a la página principal
-            alert("✅ Site saved successfully!");
+            // Mensaje de Éxito con SweetAlert
+            await Swal.fire({
+                title: '¡Guardado!',
+                text: 'El sitio se ha añadido correctamente.',
+                icon: 'success',
+                confirmButtonText: 'Genial',
+                confirmButtonColor: '#2ecc71'
+            });
+
+            // Volvemos al inicio al terminar
             window.location.href = 'index.html';
 
         } catch (error) {
             console.error(error);
-            alert("❌ Error saving site: " + error.message);
+            Swal.fire('Error', 'No se pudo guardar: ' + error.message, 'error');
         }
     });
 }
 
-// --- VALIDACIÓN VISUAL (Punto Extra) ---
+// --- 4. VALIDACIONES VISUALES (BLUR) ---
 function activarValidaciones() {
-    // Buscamos todos los inputs obligatorios
     const inputs = document.querySelectorAll('input[required], select[required]');
     
     inputs.forEach(input => {
-        // Cuando sales de la casilla (blur)
+        // Al salir de la casilla (blur)
         input.addEventListener('blur', () => {
             if (!input.checkValidity()) {
                 input.style.borderColor = "#e74c3c"; // Rojo
@@ -108,13 +126,10 @@ function activarValidaciones() {
             }
         });
 
-        // Cuando escribes para corregirlo
+        // Al escribir (input) para limpiar el error en tiempo real
         input.addEventListener('input', () => {
-            input.style.borderColor = ""; // Quitar color
+            input.style.borderColor = ""; 
             input.style.backgroundColor = "";
         });
     });
 }
-
-// IMPORTANTE: Ejecutar esto al cargar
-activarValidaciones();

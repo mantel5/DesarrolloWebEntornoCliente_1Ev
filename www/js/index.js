@@ -66,14 +66,32 @@ function renderCategories(categories) {
 }
 
 async function deleteCategoryFunc(id) {
-    if (!confirm("¿Eliminar categoría y todos sus sitios?")) return;
-    try {
-        await api.deleteCategory(id);
-        loadCategories();
-        siteTableBody.innerHTML = '<tr><td colspan="5">Categoría eliminada</td></tr>';
-        currentCategoryId = null;
-    } catch (error) {
-        alert("Error: " + error.message);
+    // Ventana de confirmación bonita
+    const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Borrarás la categoría y todos sus sitios. ¡No hay vuelta atrás!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33', // Rojo
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, ¡borrarlo!'
+    });
+
+    if (result.isConfirmed) {
+        try {
+            await api.deleteCategory(id);
+            loadCategories();
+            siteTableBody.innerHTML = '<tr><td colspan="5">Categoría eliminada</td></tr>';
+            currentCategoryId = null;
+            
+            Swal.fire(
+                '¡Borrado!',
+                'La categoría ha sido eliminada.',
+                'success'
+            );
+        } catch (error) {
+            Swal.fire('Error', error.message, 'error');
+        }
     }
 }
 
@@ -142,65 +160,117 @@ function renderSiteTable(sites) {
 }
 
 async function deleteSiteFunc(siteId) {
-    if (!confirm("¿Borrar este sitio?")) return;
-    try {
-        await api.deleteSite(siteId);
-        if (currentCategoryId) {
-            loadSites(currentCategoryId);
-        } else {
-            siteTableBody.innerHTML = '<tr><td colspan="5">Sitio borrado.</td></tr>';
+    // Ventana de confirmación bonita
+    const result = await Swal.fire({
+        title: '¿Eliminar sitio?',
+        text: "No podrás recuperar esta contraseña.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33', // Rojo peligro
+        cancelButtonColor: '#3085d6', // Azul cancelar
+        confirmButtonText: 'Sí, borrar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    // Si el usuario dice que SÍ
+    if (result.isConfirmed) {
+        try {
+            await api.deleteSite(siteId);
+
+            // Actualizamos la tabla
+            if (currentCategoryId) {
+                // Si estamos dentro de una categoría, recargamos la lista
+                loadSites(currentCategoryId);
+            } else {
+                // Si estábamos en el buscador global, limpiamos para no confundir
+                siteTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: #2ecc71;">Sitio borrado correctamente ✨</td></tr>';
+            }
+
+            // Mensaje de éxito fugaz (más elegante)
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+
+            Toast.fire({
+                icon: 'success',
+                title: 'Sitio eliminado'
+            });
+
+        } catch (error) {
+            Swal.fire('Error', 'No se pudo borrar: ' + error.message, 'error');
         }
-    } catch (error) {
-        alert("Error al borrar: " + error.message);
     }
 }
 
 // ==========================================
-// BOTÓN AÑADIR CATEGORÍA (Con Iconos) 🎨
+// BOTÓN AÑADIR CATEGORÍA (VERSIÓN PRO - SWEETALERT) 💎
 // ==========================================
 
 if (btnAddCategory) {
     btnAddCategory.addEventListener('click', async () => {
-        // 1. Pedimos el nombre
-        const nameInput = prompt("1/2. Escribe el nombre de la categoría:");
-        // Validación básica: si cancela o deja vacío, paramos
-        if (!nameInput || nameInput.trim() === "") return;
+        
+        // Lanzamos la ventana bonita de SweetAlert
+        const { value: formValues } = await Swal.fire({
+            title: 'Nueva Categoría',
+            // HTML personalizado dentro de la alerta: Input + Desplegable
+            html: `
+                <input id="swal-input-name" class="swal2-input" placeholder="Nombre de la categoría">
+                <select id="swal-input-icon" class="swal2-input">
+                    <option value="📁">📁 Sin icono (Carpeta)</option>
+                    <option value="🏠">🏠 Casa</option>
+                    <option value="💼">💼 Trabajo</option>
+                    <option value="🛒">🛒 Compras</option>
+                    <option value="🎮">🎮 Ocio</option>
+                    <option value="🎓">🎓 Estudios</option>
+                    <option value="✈️">✈️ Viajes</option>
+                    <option value="🔒">🔒 Seguridad</option>
+                    <option value="🌐">🌐 Web</option>
+                </select>
+            `,
+            focusConfirm: false,
+            showCancelButton: true, // Botón cancelar
+            confirmButtonText: 'Guardar',
+            confirmButtonColor: '#2ecc71', // Verde
+            cancelButtonColor: '#d33',
+            
+            // Función que se ejecuta antes de cerrar para validar
+            preConfirm: () => {
+                const name = document.getElementById('swal-input-name').value;
+                const icon = document.getElementById('swal-input-icon').value;
+                
+                if (!name) {
+                    Swal.showValidationMessage('¡El nombre es obligatorio!');
+                    return false; // Evita que se cierre si no hay nombre
+                }
+                
+                // Devolvemos el string combinado
+                return `${icon} ${name}`;
+            }
+        });
 
-        // 2. Pedimos el icono (Menú sencillo)
-        const iconMenu = `2/2. Elige un icono (escribe el número):
-        1. 🏠 Casa
-        2. 💼 Trabajo
-        3. 🛒 Compras
-        4. 🎮 Ocio
-        5. 🎓 Estudios
-        6. ✈️ Viajes
-        7. 🔒 Seguridad
-        8. 🌐 Web
-        (Deja vacío para usar una carpeta 📁)`;
-
-        const iconSelection = prompt(iconMenu);
-        let icon = '📁'; // Icono por defecto
-
-        switch (iconSelection) {
-            case '1': icon = '🏠'; break;
-            case '2': icon = '💼'; break;
-            case '3': icon = '🛒'; break;
-            case '4': icon = '🎮'; break;
-            case '5': icon = '🎓'; break;
-            case '6': icon = '✈️'; break;
-            case '7': icon = '🔒'; break;
-            case '8': icon = '🌐'; break;
-        }
-
-        // 3. Juntamos Icono + Nombre y guardamos
-        const finalName = `${icon} ${nameInput}`;
-
-        try {
-            await api.addCategory(finalName);
-            loadCategories(); // Recargar lista
-        } catch (error) {
-            console.error(error);
-            alert("Error guardando categoría.");
+        // Si el usuario le dio a Guardar (formValues tendrá el nombre+icono)
+        if (formValues) {
+            try {
+                await api.addCategory(formValues);
+                loadCategories(); // Recargar lista
+                
+                // Mensaje de éxito bonito
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Guardado!',
+                    text: 'La categoría se ha creado correctamente.',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error', 'No se pudo guardar la categoría', 'error');
+            }
         }
     });
 }
