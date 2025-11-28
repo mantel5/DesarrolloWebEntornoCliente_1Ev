@@ -156,14 +156,51 @@ async function deleteSiteFunc(siteId) {
 }
 
 // ==========================================
-// LÓGICA DE AÑADIR
+// BOTÓN AÑADIR CATEGORÍA (Con Iconos) 🎨
 // ==========================================
+
 if (btnAddCategory) {
     btnAddCategory.addEventListener('click', async () => {
-        const catName = prompt("Nombre categoría:");
-        if (catName) {
-            await api.addCategory(catName);
-            loadCategories();
+        // 1. Pedimos el nombre
+        const nameInput = prompt("1/2. Escribe el nombre de la categoría:");
+        // Validación básica: si cancela o deja vacío, paramos
+        if (!nameInput || nameInput.trim() === "") return;
+
+        // 2. Pedimos el icono (Menú sencillo)
+        const iconMenu = `2/2. Elige un icono (escribe el número):
+        1. 🏠 Casa
+        2. 💼 Trabajo
+        3. 🛒 Compras
+        4. 🎮 Ocio
+        5. 🎓 Estudios
+        6. ✈️ Viajes
+        7. 🔒 Seguridad
+        8. 🌐 Web
+        (Deja vacío para usar una carpeta 📁)`;
+
+        const iconSelection = prompt(iconMenu);
+        let icon = '📁'; // Icono por defecto
+
+        switch (iconSelection) {
+            case '1': icon = '🏠'; break;
+            case '2': icon = '💼'; break;
+            case '3': icon = '🛒'; break;
+            case '4': icon = '🎮'; break;
+            case '5': icon = '🎓'; break;
+            case '6': icon = '✈️'; break;
+            case '7': icon = '🔒'; break;
+            case '8': icon = '🌐'; break;
+        }
+
+        // 3. Juntamos Icono + Nombre y guardamos
+        const finalName = `${icon} ${nameInput}`;
+
+        try {
+            await api.addCategory(finalName);
+            loadCategories(); // Recargar lista
+        } catch (error) {
+            console.error(error);
+            alert("Error guardando categoría.");
         }
     });
 }
