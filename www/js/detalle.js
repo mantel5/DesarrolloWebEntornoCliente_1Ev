@@ -90,3 +90,31 @@ if (form) {
         }
     });
 }
+
+// --- VALIDACIÓN VISUAL (Punto Extra) ---
+function activarValidaciones() {
+    // Buscamos todos los inputs obligatorios
+    const inputs = document.querySelectorAll('input[required], select[required]');
+    
+    inputs.forEach(input => {
+        // Cuando sales de la casilla (blur)
+        input.addEventListener('blur', () => {
+            if (!input.checkValidity()) {
+                input.style.borderColor = "#e74c3c"; // Rojo
+                input.style.backgroundColor = "#fff5f5";
+            } else {
+                input.style.borderColor = "#2ecc71"; // Verde
+                input.style.backgroundColor = "#ffffff";
+            }
+        });
+
+        // Cuando escribes para corregirlo
+        input.addEventListener('input', () => {
+            input.style.borderColor = ""; // Quitar color
+            input.style.backgroundColor = "";
+        });
+    });
+}
+
+// IMPORTANTE: Ejecutar esto al cargar
+activarValidaciones();
