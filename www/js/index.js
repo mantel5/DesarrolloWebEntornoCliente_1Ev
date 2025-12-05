@@ -1,6 +1,6 @@
 import { api } from './api.js';
 
-// --- REFERENCIAS AL DOM ---
+// Elementos del DOM
 const categoryList = document.getElementById('categoryList');
 const siteTableBody = document.getElementById('siteTableBody');
 const btnAddCategory = document.getElementById('btnAddCategory');
@@ -8,15 +8,11 @@ const searchInput = document.getElementById('searchInput');
 
 let currentCategoryId = null;
 
-// --- 1. AL CARGAR LA PÁGINA ---
 document.addEventListener('DOMContentLoaded', () => {
     loadCategories();
 });
 
-// ==========================================
-// LÓGICA DE CATEGORÍAS
-// ==========================================
-
+// Cargar y mostrar categorías
 async function loadCategories() {
     try {
         const categories = await api.getCategories();
@@ -27,6 +23,7 @@ async function loadCategories() {
     }
 }
 
+// Renderizar categorías en la lista
 function renderCategories(categories) {
     categoryList.innerHTML = ''; 
 
@@ -65,8 +62,8 @@ function renderCategories(categories) {
     });
 }
 
+// Eliminar categoría con confirmación
 async function deleteCategoryFunc(id) {
-    // Ventana de confirmación bonita
     const result = await Swal.fire({
         title: '¿Estás seguro?',
         text: "Borrarás la categoría y todos sus sitios. ¡No hay vuelta atrás!",
@@ -95,10 +92,8 @@ async function deleteCategoryFunc(id) {
     }
 }
 
-// ==========================================
-// LÓGICA DE SITIOS (SITES)
-// ==========================================
 
+// Cargar y mostrar sitios de una categoría
 async function loadSites(categoryId) {
     siteTableBody.innerHTML = '<tr><td colspan="5">Cargando...</td></tr>';
     try {
@@ -111,7 +106,7 @@ async function loadSites(categoryId) {
     }
 }
 
-// FUNCIÓN PARA PINTAR LA TABLA (5 COLUMNAS)
+// Renderizar tabla de sitios
 function renderSiteTable(sites) {
     siteTableBody.innerHTML = ''; 
 
@@ -159,34 +154,29 @@ function renderSiteTable(sites) {
     });
 }
 
+// Eliminar sitio con confirmación
 async function deleteSiteFunc(siteId) {
-    // Ventana de confirmación bonita
     const result = await Swal.fire({
         title: '¿Eliminar sitio?',
         text: "No podrás recuperar esta contraseña.",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#d33', // Rojo peligro
-        cancelButtonColor: '#3085d6', // Azul cancelar
+        confirmButtonColor: '#d33', 
+        cancelButtonColor: '#3085d6', 
         confirmButtonText: 'Sí, borrar',
         cancelButtonText: 'Cancelar'
     });
 
-    // Si el usuario dice que SÍ
     if (result.isConfirmed) {
         try {
             await api.deleteSite(siteId);
 
-            // Actualizamos la tabla
             if (currentCategoryId) {
-                // Si estamos dentro de una categoría, recargamos la lista
                 loadSites(currentCategoryId);
             } else {
-                // Si estábamos en el buscador global, limpiamos para no confundir
                 siteTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: #2ecc71;">Sitio borrado correctamente ✨</td></tr>';
             }
 
-            // Mensaje de éxito fugaz (más elegante)
             const Toast = Swal.mixin({
                 toast: true,
                 position: 'top-end',
@@ -206,17 +196,12 @@ async function deleteSiteFunc(siteId) {
     }
 }
 
-// ==========================================
-// BOTÓN AÑADIR CATEGORÍA (VERSIÓN PRO - SWEETALERT) 💎
-// ==========================================
-
+// Añadir nueva categoría
 if (btnAddCategory) {
     btnAddCategory.addEventListener('click', async () => {
         
-        // Lanzamos la ventana bonita de SweetAlert
         const { value: formValues } = await Swal.fire({
             title: 'Nueva Categoría',
-            // HTML personalizado dentro de la alerta: Input + Desplegable
             html: `
                 <input id="swal-input-name" class="swal2-input" placeholder="Nombre de la categoría">
                 <select id="swal-input-icon" class="swal2-input">
@@ -232,12 +217,11 @@ if (btnAddCategory) {
                 </select>
             `,
             focusConfirm: false,
-            showCancelButton: true, // Botón cancelar
+            showCancelButton: true, 
             confirmButtonText: 'Guardar',
-            confirmButtonColor: '#2ecc71', // Verde
+            confirmButtonColor: '#2ecc71', 
             cancelButtonColor: '#d33',
             
-            // Función que se ejecuta antes de cerrar para validar
             preConfirm: () => {
                 const name = document.getElementById('swal-input-name').value;
                 const icon = document.getElementById('swal-input-icon').value;
@@ -247,18 +231,15 @@ if (btnAddCategory) {
                     return false; // Evita que se cierre si no hay nombre
                 }
                 
-                // Devolvemos el string combinado
                 return `${icon} ${name}`;
             }
         });
 
-        // Si el usuario le dio a Guardar (formValues tendrá el nombre+icono)
         if (formValues) {
             try {
                 await api.addCategory(formValues);
-                loadCategories(); // Recargar lista
+                loadCategories(); 
                 
-                // Mensaje de éxito bonito
                 Swal.fire({
                     icon: 'success',
                     title: '¡Guardado!',
@@ -275,10 +256,8 @@ if (btnAddCategory) {
     });
 }
 
-// ==========================================
-// BUSCADOR GLOBAL 🌍
-// ==========================================
 
+// Búsqueda en categorías y sitios
 if (searchInput) {
     searchInput.addEventListener('keyup', async (e) => {
         const term = e.target.value.toLowerCase();

@@ -1,17 +1,15 @@
 import { api } from './api.js';
 
-// --- REFERENCIAS AL DOM ---
+// Elementos del DOM
 const form = document.getElementById('siteForm');
 const categorySelect = document.getElementById('categorySelect');
 const btnGenerate = document.getElementById('btnGenerate');
 const passwordInput = document.getElementById('password');
 
-// --- 1. AL CARGAR LA PÁGINA ---
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         const categories = await api.getCategories();
         
-        // Rellenamos el desplegable
         categorySelect.innerHTML = '<option value="">Select a category...</option>';
         categories.forEach(cat => {
             const option = document.createElement('option');
@@ -20,7 +18,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             categorySelect.appendChild(option);
         });
         
-        // Activamos las validaciones visuales (rojo/verde)
         activarValidaciones();
 
     } catch (error) {
@@ -33,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// --- 2. GENERAR CONTRASEÑA SEGURA 🎲 ---
+// contraseña segura
 if (btnGenerate) {
     btnGenerate.addEventListener('click', () => {
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
@@ -47,17 +44,14 @@ if (btnGenerate) {
 
         passwordInput.value = password;
         
-        // CORRECCIÓN: Forzamos el color verde al generar (para quitar el rojo si lo hubiera)
         passwordInput.style.borderColor = "#2ecc71"; 
         passwordInput.style.backgroundColor = "#ffffff";
 
-        // Efecto visual de parpadeo verde clarito
         const originalBg = passwordInput.style.backgroundColor;
         passwordInput.style.transition = "background-color 0.3s";
         passwordInput.style.backgroundColor = "#d4edda";
         setTimeout(() => passwordInput.style.backgroundColor = originalBg, 500);
 
-        // Notificación pequeña (Toast)
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -68,7 +62,7 @@ if (btnGenerate) {
     });
 }
 
-// --- 3. GUARDAR SITIO (SAVE) ---
+// guardar sitio
 if (form) {
     form.addEventListener('submit', async (e) => {
         e.preventDefault(); 
@@ -100,7 +94,6 @@ if (form) {
                 confirmButtonColor: '#2ecc71'
             });
 
-            // Volvemos al inicio al terminar
             window.location.href = 'index.html';
 
         } catch (error) {
@@ -110,12 +103,11 @@ if (form) {
     });
 }
 
-// --- 4. VALIDACIONES VISUALES (BLUR) ---
+// validaciones visuales
 function activarValidaciones() {
     const inputs = document.querySelectorAll('input[required], select[required]');
     
     inputs.forEach(input => {
-        // Al salir de la casilla (blur)
         input.addEventListener('blur', () => {
             if (!input.checkValidity()) {
                 input.style.borderColor = "#e74c3c"; // Rojo
@@ -126,7 +118,6 @@ function activarValidaciones() {
             }
         });
 
-        // Al escribir (input) para limpiar el error en tiempo real
         input.addEventListener('input', () => {
             input.style.borderColor = ""; 
             input.style.backgroundColor = "";
